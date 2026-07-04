@@ -1,0 +1,22 @@
+resources:
+  jobs:
+    youtube_earthquake_data_job:
+      name: youtube_earthquake_data_job
+      tasks:
+        - task_key: earthquake_bronze_job
+          notebook_task:
+            notebook_path: ../src/notebooks/ingestion_bronze.ipynb
+            base_parameters:
+              catalog_name: ${var.catalog}
+            source: WORKSPACE
+        - task_key: bronze_silver_earthquake
+          depends_on:
+            - task_key: earthquake_bronze_job
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.youtube_de_project_bundle_etl.id}
+      queue:
+        enabled: true
+      parameters:
+        - name: catalog_name
+          default: ${var.catalog}
+      performance_target: PERFORMANCE_OPTIMIZED
